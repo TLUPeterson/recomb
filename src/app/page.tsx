@@ -22,7 +22,6 @@ export default function Home() {
   const [desiredSuffixes, setDesiredSuffixes] = useState<Set<string>>(new Set());
 
   const handleModChange = (item: 'item1' | 'item2', type: ModType, index: number, value: string) => {
-    console.log('test')
     const setMods = item === 'item1' ? setItem1Mods : setItem2Mods;
     setMods(prev => {
       const newMods = {
