@@ -1,113 +1,149 @@
-import Image from "next/image";
+'use client'
+import React, { useEffect, useState } from 'react';
+import { Checkbox } from "@/components/ui/checkbox"
+import { Card } from "@/components/ui/card"
+import HonourSection from "@/components/HonourSection";
+import { Mods, ModType, DesiredSectionProps } from '@/types/types';
+import calculateSuccessChance from '@/utils/recalc';
 
 export default function Home() {
+  const [item1Mods, setItem1Mods] = useState<Mods>({
+    prefixes: ['', '', ''],
+    suffixes: ['', '', '']
+  });
+  const [item2Mods, setItem2Mods] = useState<Mods>({
+    prefixes: ['', '', ''],
+    suffixes: ['', '', '']
+  });
+
+  const [successChance, setSuccessChance] = useState<number | null>(null);
+
+  const [desiredPrefixes, setDesiredPrefixes] = useState<Set<string>>(new Set());
+  const [desiredSuffixes, setDesiredSuffixes] = useState<Set<string>>(new Set());
+
+  const handleModChange = (item: 'item1' | 'item2', type: ModType, index: number, value: string) => {
+    console.log('test')
+    const setMods = item === 'item1' ? setItem1Mods : setItem2Mods;
+    setMods(prev => {
+      const newMods = {
+        ...prev,
+        [type]: prev[type].map((mod, i) => i === index ? value : mod)
+      };
+      
+      // Update available mods
+      const newAllPrefixes = [...newMods.prefixes, ...(item === 'item1' ? item2Mods.prefixes : item1Mods.prefixes)].filter(Boolean);
+      const newAllSuffixes = [...newMods.suffixes, ...(item === 'item1' ? item2Mods.suffixes : item1Mods.suffixes)].filter(Boolean);
+      
+      // Validate and update desired mods
+      setDesiredPrefixes(prev => validateDesiredMods(prev, newAllPrefixes));
+      setDesiredSuffixes(prev => validateDesiredMods(prev, newAllSuffixes));
+      
+      return newMods;
+    });
+  };
+
+  const allPrefixes = [...item1Mods.prefixes, ...item2Mods.prefixes].filter(Boolean);
+  const allSuffixes = [...item1Mods.suffixes, ...item2Mods.suffixes].filter(Boolean);
+
+
+  const handleCalculate = () => {
+    const chance = calculateSuccessChance(desiredPrefixes, desiredSuffixes, item1Mods, item2Mods);
+    setSuccessChance(chance);
+  };
+
+  const validateDesiredMods = (desiredMods: Set<string>, availableMods: string[]): Set<string> => {
+    const validMods = new Set<string>();
+    for (const mod of desiredMods) {
+      if (availableMods.includes(mod)) {
+        validMods.add(mod);
+      }
+    }
+    return validMods;
+  };
+
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="px-8 pt-1 bg-slate-600 h-full">
+      <Card className="bg-gray-800 text-white p-6 h-full">
+        <h1 className="text-2xl font-bold mb-4">Recombinators</h1>
+        <div className="grid grid-cols-2 gap-6">
+          <HonourSection 
+            title="Item 1" 
+            type="" 
+            mods={item1Mods}
+            onModChange={(type, index, value) => handleModChange('item1', type, index, value)}
+          />
+          <HonourSection 
+            title="Item 2" 
+            type="" 
+            mods={item2Mods}
+            onModChange={(type, index, value) => handleModChange('item2', type, index, value)}
+          />
         </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+        <div className="grid grid-cols-2 gap-6 mt-6">
+          <DesiredSection 
+            title={`${desiredPrefixes.size} DESIRED PREFIXES`}
+            items={allPrefixes} 
+            desiredMods={desiredPrefixes}
+            setDesiredMods={setDesiredPrefixes}
+          />
+          <DesiredSection 
+            title={`${desiredSuffixes.size} DESIRED SUFFIXES`}
+            items={allSuffixes} 
+            desiredMods={desiredSuffixes}
+            setDesiredMods={setDesiredSuffixes}
+          />
+        </div>
+        <div className="mt-6">
+          <button 
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleCalculate}
+          >
+            Calculate Success Chance
+          </button>
+          {successChance !== null && (
+            <p className="mt-2">CHANCE OF SUCCESS: {(successChance * 100).toFixed(2)}%</p>
+          )}
+        </div>
+      </Card>
     </main>
+  );
+}
+
+function DesiredSection({ title, items, desiredMods, setDesiredMods }: DesiredSectionProps & { desiredMods: Set<string>, setDesiredMods: React.Dispatch<React.SetStateAction<Set<string>>> }) {
+  const handleCheckboxChange = (item: string) => {
+    setDesiredMods(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(item)) {
+        newSet.delete(item);
+      } else {
+        newSet.add(item);
+      }
+      return newSet;
+    });
+  };
+  
+
+  return (
+    <div>
+      <h2 className="font-bold mb-2">{title}</h2>
+      <div className="space-y-2">
+        {items.map((item, index) => (
+          <div key={index} className="flex items-center">
+            <Checkbox 
+              id={`checkbox-${title}-${index}`} 
+              className='bg-gray-400 border-2 border-gray-400 
+                        data-[state=checked]:bg-blue-600 
+                        data-[state=checked]:border-blue-700
+                        data-[state=checked]:text-white'
+              checked={desiredMods.has(item)}
+              onCheckedChange={() => handleCheckboxChange(item)}
+            />            
+            <label htmlFor={`checkbox-${title}-${index}`} className="ml-2 text-sm">{item}</label>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
