@@ -64,7 +64,7 @@ export default function Home() {
 
 
   return (
-    <main className="px-8 pt-1 bg-slate-600 h-full">
+    <main className="px-8 pt-1 bg-slate-600 min-h-screen">
       <Card className="bg-gray-800 text-white p-6 h-full">
         <h1 className="text-2xl font-bold mb-4">Recombinators</h1>
         <div className="grid grid-cols-2 gap-6">
