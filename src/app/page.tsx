@@ -53,11 +53,11 @@ export default function Home() {
 
   const validateDesiredMods = (desiredMods: Set<string>, availableMods: string[]): Set<string> => {
     const validMods = new Set<string>();
-    for (const mod of desiredMods) {
+    Array.from(desiredMods).forEach(mod => {
       if (availableMods.includes(mod)) {
         validMods.add(mod);
       }
-    }
+    });
     return validMods;
   };
 

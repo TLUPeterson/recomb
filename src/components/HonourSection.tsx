@@ -1,4 +1,3 @@
-// HonourSection.tsx
 import React from 'react';
 import { Input } from "./ui/input";
 import { HonourSectionProps, ModType, AttributeInputProps } from '@/types/types';

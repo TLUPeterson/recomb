@@ -1,5 +1,3 @@
-// utils/recalc.ts
-
 import { Mods } from '@/types/types';
 
 const rolls = [999, 999, 1000, 1000, 1000, 1000];
